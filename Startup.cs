@@ -28,8 +28,14 @@ namespace DVDMovie
                     ["Data:Movies:ConnectionString"]));
 
             services.AddMvc().AddJsonOptions(opts =>
-            opts.SerializerSettings.ReferenceLoopHandling
-                    = ReferenceLoopHandling.Serialize);
+            {
+                opts.SerializerSettings.ReferenceLoopHandling
+                    = ReferenceLoopHandling.Serialize;
+                opts.SerializerSettings.NullValueHandling
+                = NullValueHandling.Ignore;
+            });
+             
+
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 

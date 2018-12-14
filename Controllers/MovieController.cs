@@ -12,23 +12,26 @@ namespace DVDMovie.Controllers
     public class MovieController : Controller
     {
         private DataContext context;
-        public MovieController(DataContext ctx){
+        public MovieController(DataContext ctx)
+        {
             context = ctx;
         }
 
-        [HttpGet("{id}")]                   	
-    	public Movie GetMovie(long id)
-    	{
+        [HttpGet("{id}")]
+        public Movie GetMovie(long id)
+        {
             //System.Threading.Thread.Sleep(5000);
-        	Movie result = context.Movies
-                    .Include(m => m.Studio).ThenInclude(s=> s.Movies)
+            Movie result = context.Movies
+                    .Include(m => m.Studio).ThenInclude(s => s.Movies)
                     .Include(m => m.Ratings)
                     .FirstOrDefault(m => m.MovieId == id);
             if (result != null)
             {
-                if (result.Studio != null){
-                    result.Studio.Movies = result.Studio.Movies.Select(s=>
-                    new Movie{
+                if (result.Studio != null)
+                {
+                    result.Studio.Movies = result.Studio.Movies.Select(s =>
+                    new Movie
+                    {
                         MovieId = s.MovieId,
                         Name = s.Name,
                         Category = s.Category,
@@ -45,6 +48,47 @@ namespace DVDMovie.Controllers
                 }
             }
             return result;
-    	}
+        }
+
+        [HttpGet]
+        public IEnumerable<Movie> GetMovies(string category, string search,
+                                            bool related = false)
+        {
+            IQueryable<Movie> query = context.Movies;
+            
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                string catLower = category.ToLower();
+                query = query.Where(m => m.Category.ToLower().Contains(catLower));
+            }
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string searchLower = search.ToLower();
+                query = query.Where(m => m.Name.ToLower().Contains(searchLower)
+                || m.Description.ToLower().Contains(searchLower));
+            }
+
+            if (related)
+            {
+                query = query.Include(m => m.Studio).Include(m => m.Ratings);
+                List<Movie> data = query.ToList();
+                data.ForEach(m =>
+                {
+                    if (m.Studio != null)
+                    {
+                        m.Studio.Movies = null;
+                    }
+                    if (m.Ratings != null)
+                    {
+                        m.Ratings.ForEach(r => r.Movie = null);
+                    }
+                });
+                return data;
+            }
+            else
+            {
+                return query;
+            }
+        }
     }
 }

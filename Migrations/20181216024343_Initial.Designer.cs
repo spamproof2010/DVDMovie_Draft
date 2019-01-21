@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DVDMovie.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20181215223414_Initial")]
+    [Migration("20181216024343_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -84,14 +84,16 @@ namespace DVDMovie.Migrations
                 {
                     b.HasOne("DVDMovie.Models.Studio", "Studio")
                         .WithMany("Movies")
-                        .HasForeignKey("StudioId");
+                        .HasForeignKey("StudioId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DVDMovie.Models.Rating", b =>
                 {
                     b.HasOne("DVDMovie.Models.Movie", "Movie")
                         .WithMany("Ratings")
-                        .HasForeignKey("MovieId");
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

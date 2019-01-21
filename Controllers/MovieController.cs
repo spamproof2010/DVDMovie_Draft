@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using DVDMovie.Models;
 using Microsoft.EntityFrameworkCore;
 using DVDMovie.Models.BindingTargets;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace DVDMovie.Controllers
 {
@@ -110,7 +111,7 @@ namespace DVDMovie.Controllers
                 return BadRequest(ModelState);
             }
         }
-         [HttpPut("{id}")]
+        [HttpPut("{id}")]
         public IActionResult ReplaceMovie(long id, [FromBody] MovieData mData)
         {
             if (ModelState.IsValid)
@@ -130,5 +131,30 @@ namespace DVDMovie.Controllers
                 return BadRequest(ModelState);
             }
         }
+
+        [HttpPatch("{id}")]
+        public IActionResult UpdateMovie(long id,
+            [FromBody]JsonPatchDocument<MovieData> patch)
+        {
+            Movie movie = context.Movies
+                        .Include(m => m.Studio)
+                        .First(m => m.MovieId == id);
+            MovieData mdata = new MovieData { Movie = movie };
+            patch.ApplyTo(mdata, ModelState);
+            if (ModelState.IsValid && TryValidateModel(mdata))
+            {
+                if (movie.Studio != null && movie.Studio.StudioId != 0)
+                {
+                    context.Attach(movie.Studio);
+                }
+                context.SaveChanges();
+                return Ok(movie);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
+        }
+
     }
 }

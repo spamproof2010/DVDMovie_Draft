@@ -82,14 +82,16 @@ namespace DVDMovie.Migrations
                 {
                     b.HasOne("DVDMovie.Models.Studio", "Studio")
                         .WithMany("Movies")
-                        .HasForeignKey("StudioId");
+                        .HasForeignKey("StudioId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("DVDMovie.Models.Rating", b =>
                 {
                     b.HasOne("DVDMovie.Models.Movie", "Movie")
                         .WithMany("Ratings")
-                        .HasForeignKey("MovieId");
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

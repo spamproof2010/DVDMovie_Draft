@@ -41,6 +41,10 @@ export class AppComponent {
     let s = new Studio(3, "Modified Studio", "New York", "NY");
     this.repo.replaceStudio(s);
   }
-
-
+  updateMovie() {
+    let changes = new Map<string, any>();
+    changes.set("name", "Green Hornet");
+    changes.set("studio", null);
+    this.repo.updateMovie(1, changes);
+    }
 }

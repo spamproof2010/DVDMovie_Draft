@@ -81,7 +81,13 @@ export class Repository {
 		this.http.put(studiosUrl + "/" + stu.studioId, data)
 			.subscribe(response => this.getMovies());
 	}
-
+	updateMovie(id: number, changes: Map<string, any>) {
+		let patch = [];
+		changes.forEach((value, key) =>
+		patch.push({ op: "replace", path: key, value: value }));
+		this.http.patch(moviesUrl + "/" + id, patch)
+		.subscribe(response => this.getMovies());
+		}
 
 
 	movie: Movie;

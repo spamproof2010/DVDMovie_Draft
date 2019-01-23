@@ -89,7 +89,19 @@ export class Repository {
 		.subscribe(response => this.getMovies());
 		}
 
-
+		deleteMovie(id: number) {
+			this.http.delete(moviesUrl + "/" + id)
+				.subscribe(response => this.getMovies());
+		}
+	
+		deleteStudio(id: number) {
+			this.http.delete(studiosUrl + "/" + id)
+				.subscribe(response => {
+					this.getMovies();
+					this.getStudios();
+				});
+		}
+	
 	movie: Movie;
 	movies: Movie[];
 	studios: Studio[] = [];

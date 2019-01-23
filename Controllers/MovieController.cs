@@ -156,5 +156,12 @@ namespace DVDMovie.Controllers
             }
         }
 
+        [HttpDelete("{id}")]
+        public IActionResult DeleteMovie(long id)
+        {
+            context.Movies.Remove(new Movie { MovieId = id });
+            context.SaveChanges();
+            return Ok(id);
+        }
     }
 }

@@ -44,6 +44,23 @@ namespace DVDMovie
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+
+            // Added for handling sessions
+            services.AddDistributedSqlServerCache(options =>
+            {
+                options.ConnectionString =
+                    Configuration["Data:Movies:ConnectionString"];
+                options.SchemaName = "dbo";
+                options.TableName = "SessionData";
+            });
+            // Added for handling sessions
+            services.AddSession(options =>
+            {
+                options.Cookie.Name = "DVDMovie.Session";
+                options.IdleTimeout = System.TimeSpan.FromHours(48);
+                options.Cookie.HttpOnly = false;
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -64,7 +81,7 @@ namespace DVDMovie
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
-
+            app.UseSession();       // Added for handling sessions
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

@@ -1,11 +1,24 @@
 import { Injectable } from "@angular/core";
 import { Movie } from "./movie.model";
+import { Repository } from "./repository";
 
 @Injectable()
 export class Cart {
     selections: MovieSelection[] = [];
     itemCount: number = 0;
     totalPrice: number = 0;
+
+    constructor(private repo: Repository) {
+        repo.getSessionData("cart").subscribe(cartData => {
+            if (cartData != null) {
+                cartData.map(item => new MovieSelection(this, item.movieId,
+                    item.name, item.price, item.quantity))
+                    .forEach(item => this.selections.push(item));
+                this.update(false);
+            }
+        });
+    }
+
     //---------------------------------------------------
     addMovie(movie: Movie) {
         let selection = this.selections
@@ -40,11 +53,21 @@ export class Cart {
         this.update();
     }
     //---------------------------------------------------
-    update() {
+    update(storeData: boolean = true) {
         this.itemCount = this.selections.map(ps => ps.quantity)
             .reduce((prev, curr) => prev + curr, 0);
         this.totalPrice = this.selections.map(ps => ps.price * ps.quantity)
             .reduce((prev, curr) => prev + curr, 0);
+
+                    // Added for session handling
+        if (storeData) {
+            this.repo.storeSessionData("cart", this.selections.map(s => {
+                return {
+                    movieId: s.movieId, name: s.name,
+                    price: s.price, quantity: s.quantity
+                }
+            }));
+        }
     }
 }
 //---------------------------------------------------

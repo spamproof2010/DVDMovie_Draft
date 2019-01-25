@@ -29,9 +29,12 @@ export class Repository {
         if (this.filter.search) {
             url += "&search=" + this.filter.search;
         }
-
-		this.http.get<Movie[]>(url)
-				.subscribe(response => this.movies = response);
+		url += "&metadata=true";
+		this.http.get<any>(url)
+			.subscribe(response => {
+                this.movies = response.data;
+                this.categories = response.categories;
+            });
 	}
 
 	getStudios() {
@@ -105,7 +108,8 @@ export class Repository {
 	movie: Movie;
 	movies: Movie[];
 	studios: Studio[] = [];
-
+	categories: string[] = [];
+	
 	get filter(): Filter {
 		return this.filterObject;
 	}

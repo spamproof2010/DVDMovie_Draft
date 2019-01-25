@@ -53,8 +53,8 @@ namespace DVDMovie.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Movie> GetMovies(string category, string search,
-                                            bool related = false)
+        public IActionResult GetMovies(string category, string search,
+                                            bool related = false,bool metadata = false)
         {
             IQueryable<Movie> query = context.Movies;
 
@@ -85,13 +85,24 @@ namespace DVDMovie.Controllers
                         m.Ratings.ForEach(r => r.Movie = null);
                     }
                 });
-                return data;
+                 return metadata ? CreateMetadata(data) : Ok(data);
             }
             else
             {
-                return query;
+                return metadata ? CreateMetadata(query) : Ok(query);
             }
         }
+
+       private IActionResult CreateMetadata(IEnumerable<Movie> movies)
+        {
+            return Ok(new
+            {
+                data = movies,
+                categories = context.Movies.Select(m => m.Category)
+            .Distinct().OrderBy(m => m)
+            });
+        }
+
         [HttpPost]
         public IActionResult CreateMovie([FromBody] MovieData mdata)
         {
